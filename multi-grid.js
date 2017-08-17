@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { isFunction, identity, isNil } from 'lodash/fp';
 import {
   compose,
@@ -11,14 +12,10 @@ import {
   renameProps,
   lifecycle,
 } from 'recompose';
-// import CellMeasurerCacheDecorator
-//  from 'react-virtualized/dist/commonjs/MultiGrid/CellMeasurerCacheDecorator';
 import Grid from 'react-virtualized/dist/commonjs/Grid/Grid';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import scrollbarSize from 'dom-helpers/util/scrollbarSize';
 import uuid from 'uuid';
-import './multi-grid-v2.less';
-// import cellRangeRenderer from './cell-range-renderer';
 
 const PlaceHolder = compose(
   pure,
@@ -300,11 +297,13 @@ export default compose(
                       overflow: 'hidden',
                       width: vertical ? width - scrollbarSize() : width,
                       height: topGridHeight,
+                      borderBottom: '1px solid #ccc',
                     }}
                   >
                     <Grid
                       style={{
                         overflowY: 'hidden',
+                        borderBottom: '1px solid #ccc',
                       }}
                       width={vertical ? width - scrollbarSize() : width}
                       height={topGridHeight + scrollbarSize() + 2}
@@ -342,11 +341,13 @@ export default compose(
                     left: 0,
                     height: horizontal ? height - scrollbarSize() : height,
                     width: leftGridWidth,
+                    borderRight: '1px solid #ccc',
                   }}
                 >
                   <Grid
                     style={{
                       overflow: 'hidden',
+                      borderBottom: '1px solid #ccc',
                     }}
                     cellRenderer={cellRenderer}
                     width={leftGridWidth}
@@ -392,11 +393,13 @@ export default compose(
                     right: vertical ? scrollbarSize() : 0,
                     height: horizontal ? height - scrollbarSize() : height,
                     width: rightGridWidth,
+                    borderLeft: '1px solid #ccc',
                   }}
                 >
                   <Grid
                     style={{
                       overflow: 'hidden',
+                      borderBottom: '1px solid #ccc',
                     }}
                     width={rightGridWidth}
                     height={topGridHeight}
