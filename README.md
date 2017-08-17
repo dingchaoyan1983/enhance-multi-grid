@@ -1,5 +1,5 @@
 # enhance-multi-grid
-This is a enhanced version multi-grid in react-virtualized.
+This is a enhanced version [multi-grid](https://github.com/bvaughn/react-virtualized/tree/master/source/MultiGrid) in [react-virtualized](https://github.com/bvaughn/react-virtualized).
 the origin multi-grid in react-virtualized only support fixed left column.
 
 This multi-grid can support fixedLeftColumn and fixedRightColumn
