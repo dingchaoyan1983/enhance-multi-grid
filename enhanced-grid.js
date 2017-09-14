@@ -1,3 +1,6 @@
+/**
+This is a copy of Grid.js from react-virtualized, because the grid has a bug when there are some changes on scrollbar
+**/
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
