@@ -1,5 +1,4 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { PropTypes } from 'react';
 import { isFunction, identity, isNil } from 'lodash/fp';
 import {
   compose,
@@ -12,19 +11,18 @@ import {
   renameProps,
   lifecycle,
 } from 'recompose';
-import Grid from 'react-virtualized/dist/commonjs/Grid/Grid';
-import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import scrollbarSize from 'dom-helpers/util/scrollbarSize';
 import uuid from 'uuid';
+import Grid from './enhanced-grid';
+import './multi-grid-v2.less';
 
 const PlaceHolder = compose(
   pure,
 )((props) => (
   <div
     key={uuid.v4()}
-    style={{
-      ...props.style,
-    }}
+    style={props.style}
   />
 ));
 
@@ -32,8 +30,14 @@ export default compose(
   pure,
   setPropTypes({
     fixedRowCount: PropTypes.number,
-    rowHeight: PropTypes.number,
-    columnWidth: PropTypes.number,
+    rowHeight: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.func,
+    ]),
+    columnWidth: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.func,
+    ]),
     height: PropTypes.number,
     width: PropTypes.number,
     fixedLeftColumnCount: PropTypes.number,
@@ -42,6 +46,7 @@ export default compose(
     columnCount: PropTypes.number,
     cellRenderer: PropTypes.func,
     onScroll: PropTypes.func,
+    onScrollbarPresenceChange: PropTypes.func,
   }),
   defaultProps({
     fixedRowCount: 0,
@@ -55,6 +60,7 @@ export default compose(
     rowCount: 1000,
     columnCount: 100,
     onScroll: identity,
+    onScrollbarPresenceChange: identity,
   }),
   renameProps({
     scrollLeft: 'scroll-Left',
@@ -205,13 +211,6 @@ export default compose(
 
       return columnWidth;
     },
-    onScrollbarPresenceChange: ({
-      changeHorizontal,
-      changeVertical,
-    }) => ({ horizontal, vertical }) => {
-      changeHorizontal(horizontal);
-      changeVertical(vertical);
-    },
     onScroll: ({ changeScrollLeft, changeScrollTop, onScroll: onGridScroll }) =>
     ({ scrollLeft, scrollTop }) => {
       changeScrollLeft(scrollLeft);
@@ -235,6 +234,42 @@ export default compose(
         scrollTop,
       });
     },
+  }),
+  withHandlers(({
+    changeHorizontal,
+    changeVertical,
+    onScrollbarPresenceChange,
+  }) => {
+    let mainBaseGridRef;
+    let mainHeadGridRef;
+    return {
+      registerMainBaseGrid: () => (ref) => {
+        mainBaseGridRef = ref;
+      },
+      registerMainHeadGrid: () => (ref) => {
+        mainHeadGridRef = ref;
+      },
+      onResize: () => () => {
+        mainBaseGridRef.recomputeGridSize();
+        if (mainHeadGridRef) {
+          mainHeadGridRef.recomputeGridSize();
+        }
+      },
+      onScrollbarPresenceChange: () => ({ horizontal, vertical }) => {
+        if (mainHeadGridRef) {
+          mainHeadGridRef.recomputeGridSize();
+        }
+        if (mainBaseGridRef) {
+          mainBaseGridRef.recomputeGridSize();
+        }
+        changeHorizontal(horizontal);
+        changeVertical(vertical);
+        onScrollbarPresenceChange({
+          horizontal,
+          vertical,
+        });
+      },
+    };
   }),
 )(({
   style,
@@ -266,6 +301,9 @@ export default compose(
   bottomRightGridRenderer,
   onScrollLeft,
   onScrollTop,
+  registerMainBaseGrid,
+  registerMainHeadGrid,
+  onResize,
 }) => {
   if (width === 0 || height === 0) {
     return null;
@@ -276,12 +314,12 @@ export default compose(
       style={{
         ...style,
         width,
-        height,
+        height: height + 2,
       }}
     >
-      <AutoSizer disableHeight disableWidth>
-        {() =>
-          (
+      <AutoSizer onResize={onResize}>
+        {
+          () => (
             <div
               style={{
                 position: 'relative',
@@ -297,13 +335,12 @@ export default compose(
                       overflow: 'hidden',
                       width: vertical ? width - scrollbarSize() : width,
                       height: topGridHeight,
-                      borderBottom: '1px solid #ccc',
                     }}
                   >
                     <Grid
+                      ref={registerMainHeadGrid}
                       style={{
                         overflowY: 'hidden',
-                        borderBottom: '1px solid #ccc',
                       }}
                       width={vertical ? width - scrollbarSize() : width}
                       height={topGridHeight + scrollbarSize() + 2}
@@ -319,6 +356,7 @@ export default compose(
                 : null
                 }
               <Grid
+                ref={registerMainBaseGrid}
                 width={width}
                 height={bottomGridHeight}
                 cellRenderer={baseBottomGridRenderer}
@@ -341,13 +379,11 @@ export default compose(
                     left: 0,
                     height: horizontal ? height - scrollbarSize() : height,
                     width: leftGridWidth,
-                    borderRight: '1px solid #ccc',
                   }}
                 >
                   <Grid
                     style={{
                       overflow: 'hidden',
-                      borderBottom: '1px solid #ccc',
                     }}
                     cellRenderer={cellRenderer}
                     width={leftGridWidth}
@@ -361,7 +397,7 @@ export default compose(
                     style={{
                       overflow: 'hidden',
                       width: leftGridWidth,
-                      height: bottomGridHeight,
+                      height: horizontal ? bottomGridHeight - scrollbarSize() : bottomGridHeight,
                     }}
                   >
                     <Grid
@@ -393,13 +429,11 @@ export default compose(
                     right: vertical ? scrollbarSize() : 0,
                     height: horizontal ? height - scrollbarSize() : height,
                     width: rightGridWidth,
-                    borderLeft: '1px solid #ccc',
                   }}
                 >
                   <Grid
                     style={{
                       overflow: 'hidden',
-                      borderBottom: '1px solid #ccc',
                     }}
                     width={rightGridWidth}
                     height={topGridHeight}
@@ -412,7 +446,7 @@ export default compose(
                   <div
                     style={{
                       width: rightGridWidth,
-                      height: bottomGridHeight,
+                      height: horizontal ? bottomGridHeight - scrollbarSize() : bottomGridHeight,
                       overflow: 'hidden',
                     }}
                   >
@@ -434,7 +468,8 @@ export default compose(
                 </div>)
               : null
               }
-            </div>)
+            </div>
+          )
         }
       </AutoSizer>
     </div>
