@@ -2,37 +2,20 @@
   "name": "enhance-multi-grid",
   "version": "1.0.0",
   "description": "enchanced multi-grid for react-virtualized",
-  "main": "index.js",
+  "main": "dist/commonjs",
   "scripts": {
-    "start": "./node_modules/.bin/webpack-dev-server --config=./webpack.config.js --progress --colors",
-    "build": "./node_modules/.bin/better-npm-run build",
-    "build:watch": "./node_modules/.bin/better-npm-run build:watch",
-    "build:prod": "./node_modules/.bin/better-npm-run build:prod"
-  },
-  "betterScripts": {
-    "build": {
-      "command": "./node_modules/.bin/webpack --progress --colors --display-error-details --display-modules",
-      "env": {
-        "NODE_ENV": "development"
-      }
-    },
-    "build:watch": {
-      "command": "./node_modules/.bin/webpack --watch --progress --colors --display-error-details --display-modules",
-      "env": {
-        "NODE_ENV": "development"
-      }
-    },
-    "build:prod": {
-      "command": "./node_modules/.bin/webpack --progress --colors --display-error-details --display-modules",
-      "env": {
-        "NODE_ENV": "production"
-      }
-    }
+    "demo": "./node_modules/.bin/webpack-dev-server --config=./webpack.config.demo.js --progress --colors",
+    "build": "npm run build:commonjs && npm run build:umd",    
+    "build:commonjs": "npm run clean:commonjs && cross-env NODE_ENV=production cross-env BABEL_ENV=commonjs ./node_modules/.bin/babel src --out-dir dist/commonjs --ignore *.example.js,*.test.js,source/demo/,source/tests.js",    
+    "build:umd": "npm run clean:umd && cross-env NODE_ENV=production ./node_modules/.bin/webpack --config webpack.config.umd.js --bail",
+    "clean:commonjs": "rimraf dist/commonjs",
+    "clean:umd": "rimraf dist/umd",
+    "prepublish": "npm run build"
   },
   "keywords": [
-    "scaffolds",
-    "react",
-    "frontend"
+    "enchanced",
+    "multi-grid",
+    "react-virtualized"
   ],
   "author": "dane.ding<270422767@qq.com>",
   "license": "ISC",
@@ -63,6 +46,10 @@
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.2",
-    "webpack-dev-server": "^1.15.2"
+    "webpack-dev-server": "^1.15.2",
+    "babel-preset-env": "^1.6.0",
+    "rimraf": "^2.4.3",
+    "cross-env": "^1.0.7",
+    "babel-cli": "6.8.0"
   }
 }

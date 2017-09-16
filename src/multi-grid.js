@@ -15,7 +15,6 @@ import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import scrollbarSize from 'dom-helpers/util/scrollbarSize';
 import uuid from 'uuid';
 import Grid from './enhanced-grid';
-import './multi-grid-v2.less';
 
 const PlaceHolder = compose(
   pure,

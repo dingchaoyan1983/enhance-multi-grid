@@ -5,7 +5,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var path = require('path');
 var autoprefixer = require('autoprefixer');
 var src = 'src';
-var dist = 'dist';
+var dist = 'demo';
 var cssLoader = 'css?sourceMap&-minimize';
 
 if (process.env.NODE_ENV === 'production') {
@@ -15,7 +15,7 @@ if (process.env.NODE_ENV === 'production') {
 var config = {
   devtool: 'cheap-module-source-map',
   entry: {
-    app: path.join(__dirname, src, 'index.js'),
+    app: path.join(__dirname, 'index.js'),
     vendor: ['react', 'react-dom']
   },
   output: {
@@ -60,7 +60,7 @@ var config = {
   debug: true,
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, src, 'index.html'),
+      template: path.join(__dirname, 'index.html'),
       hash: false,
       filename: 'index.html',
       inject: 'body',
