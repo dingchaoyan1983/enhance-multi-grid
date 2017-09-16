@@ -5,4 +5,5 @@ the origin multi-grid in react-virtualized only support fixed left column.
 This multi-grid can support `fixedLeftColumn` and `fixedRightColumn` options
 check below sreenshot:
 
-![e5ebz2d2da](https://user-images.githubusercontent.com/7593506/29406086-9539541c-8372-11e7-8e7a-a1600496432b.gif)
+![key1mn5qmx](https://user-images.githubusercontent.com/7593506/30508711-b7d63980-9acf-11e7-8cd1-53f1885ae22c.gif)
+
